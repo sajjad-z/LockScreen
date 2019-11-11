@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 
@@ -27,6 +28,16 @@ namespace LockScreen
             }
             this.Width = width;
             this.Height = height;
+
+            // for responsive in multiple Monitors
+            if (Screen.AllScreens.Length > 1)
+            {
+                Grid.SetColumn(mainBox, 2);
+                Screen screen = Screen.AllScreens[0];
+                int primaryWidth = screen.WorkingArea.Width;
+                int primaryHeight = screen.WorkingArea.Height;
+                mainBox.Margin = new Thickness(0, 0, ((primaryWidth / 2) - (mainBox.Width / 2)) - 120, 0);
+            }
 
             // hook keyboard
             IntPtr hModule = GetModuleHandle(IntPtr.Zero);

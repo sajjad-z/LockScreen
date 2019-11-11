@@ -24,7 +24,7 @@
         FocusManager.FocusedElement="{Binding ElementName=FloatingPasswordBox}"
         Title="Lock Screen" 
         Height="900" 
-        Width="800">
+        Width="1200">
     <Window.Background>
         <SolidColorBrush Opacity="0.6" Color="Black"/>
     </Window.Background>
@@ -41,7 +41,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <materialDesign:Transitioner SelectedIndex="0" Grid.Column="1" Grid.Row="1" AutoApplyTransitionOrigins="True">
+        <materialDesign:Transitioner SelectedIndex="0" Grid.Column="1" Grid.Row="1" AutoApplyTransitionOrigins="True" HorizontalAlignment="Center" x:Name="mainBox" Margin="0 0 0 0" Width="450">
             <materialDesign:TransitioningContent OpeningEffectsOffset="{materialDesign:IndexedItemOffsetMultiplier 0:0:3:3}">
 
                 <materialDesign:TransitioningContent.OpeningEffects>
