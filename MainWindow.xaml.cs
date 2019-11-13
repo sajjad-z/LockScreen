@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace LockScreen
 {
@@ -39,6 +40,9 @@ namespace LockScreen
                 mainBox.Margin = new Thickness(0, 0, ((primaryWidth / 2) - (mainBox.Width / 2)) - 120, 0);
             }
 
+            // fill Settings Values from DataBase
+            fillFromSettings();
+
             // hook keyboard
             IntPtr hModule = GetModuleHandle(IntPtr.Zero);
             hookProc = new LowLevelKeyboardProcDelegate(LowLevelKeyboardProc);
@@ -48,6 +52,18 @@ namespace LockScreen
             //{
             //    Console.WriteLine("Failed to set hook, error = " + Marshal.GetLastWin32Error());
             //}
+        }
+
+        /// <summary>
+        /// fill Settings Values from DataBase
+        /// </summary>
+        private void fillFromSettings()
+        {
+            try
+            {
+
+            }
+            catch { }
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
@@ -187,6 +203,35 @@ namespace LockScreen
                 }
             return CallNextHookEx(0, nCode, wParam, ref lParam);
         }
+
+        private void Chip_Click(object sender, RoutedEventArgs e)
+        {
+            if (settingBox.Visibility == Visibility.Visible)
+            {
+                DoubleAnimation animation0 = new DoubleAnimation();
+                animation0.From = settingBox.ActualHeight;
+                animation0.To = 0;
+                animation0.Duration = new Duration(TimeSpan.FromMilliseconds(150));
+                animation0.Completed += Animation0_Completed;
+                settingBox.BeginAnimation(HeightProperty, animation0);
+            }
+            else
+            {
+                settingBox.Visibility = Visibility.Visible;
+
+                DoubleAnimation animation1 = new DoubleAnimation();
+                animation1.From = 0;
+                animation1.To = 350;
+                animation1.Duration = new Duration(TimeSpan.FromMilliseconds(150));
+                settingBox.BeginAnimation(HeightProperty, animation1);
+            }
+        }
+
+        private void Animation0_Completed(object sender, EventArgs e)
+        {
+            settingBox.Visibility = Visibility.Collapsed;
+        }
+
 
     }
 }
