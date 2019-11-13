@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Models;
 
 namespace LockScreen
 {
@@ -15,10 +16,12 @@ namespace LockScreen
     /// </summary>
     public partial class MainWindow : Window
     {
+        myContext db = new myContext();
+        GenericRepository<tbl_Setting> tSetting;
+
         public MainWindow()
         {
             InitializeComponent();
-            InstallMeOnStartUp();
 
             // set width & height for App
             int width = 0, height = 0;
@@ -40,8 +43,9 @@ namespace LockScreen
                 mainBox.Margin = new Thickness(0, 0, ((primaryWidth / 2) - (mainBox.Width / 2)) - 120, 0);
             }
 
+            tSetting = new GenericRepository<tbl_Setting>(db);
             // fill Settings Values from DataBase
-            fillFromSettings();
+            fillSettings();
 
             // hook keyboard
             IntPtr hModule = GetModuleHandle(IntPtr.Zero);
@@ -57,18 +61,20 @@ namespace LockScreen
         /// <summary>
         /// fill Settings Values from DataBase
         /// </summary>
-        private void fillFromSettings()
+        private void fillSettings()
         {
             try
             {
-
+                tbl_Setting setting = tSetting.Select(1);
+                titleTextBox.Text = txtTitle.Text = setting.title;
+                startUpSwitch.IsChecked = setting.isStartUp;
             }
             catch { }
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            if (FloatingPasswordBox.Password != "@dmin")
+            if (FloatingPasswordBox.Password != tSetting.Select(1).passWord)
             {
                 ErrorGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
                 ErrorMessage.Text = "رمز عبور نامعتبر است";
@@ -110,14 +116,22 @@ namespace LockScreen
         //    catch { }
         //}
 
-        void InstallMeOnStartUp()
+        void InstallMeOnStartUp(bool setInStartUp = true)
         {
             try
             {
                 Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                 Assembly curAssembly = Assembly.GetExecutingAssembly();
-                if (key.GetValue(curAssembly.GetName().Name) == null)
-                    key.SetValue(curAssembly.GetName().Name, curAssembly.Location);
+                if (setInStartUp)
+                {
+                    if (key.GetValue(curAssembly.GetName().Name) == null)
+                        key.SetValue(curAssembly.GetName().Name, curAssembly.Location);
+                }
+                else
+                {
+                    if (key.GetValue(curAssembly.GetName().Name) != null)
+                        key.SetValue(curAssembly.GetName().Name, null);
+                }
             }
             catch { }
         }
@@ -204,7 +218,7 @@ namespace LockScreen
             return CallNextHookEx(0, nCode, wParam, ref lParam);
         }
 
-        private void Chip_Click(object sender, RoutedEventArgs e)
+        void show_hideSettingBox()
         {
             if (settingBox.Visibility == Visibility.Visible)
             {
@@ -227,11 +241,44 @@ namespace LockScreen
             }
         }
 
+        private void Chip_Click(object sender, RoutedEventArgs e)
+        {
+            show_hideSettingBox();
+        }
+
         private void Animation0_Completed(object sender, EventArgs e)
         {
             settingBox.Visibility = Visibility.Collapsed;
         }
 
+        private void btnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(myPasswordBox.Password) && myPasswordBox.Password == myPasswordBoxRepeat.Password)
+            {
+                tbl_Setting setting = tSetting.Select(1);
+                setting.isStartUp = startUpSwitch.IsChecked == true ? true : false;
+                setting.passWord = myPasswordBox.Password;
+                setting.title = titleTextBox.Text;
 
+                if (tSetting.Update(setting))
+                {
+                    InstallMeOnStartUp(setting.isStartUp);
+
+                    settingMessageGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80));
+                    settingErrorMessage.Text = "با موفقیت ذخیره شد";
+                    show_hideSettingBox();
+                }
+                else
+                {
+                    settingMessageGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
+                    settingErrorMessage.Text = "مشکلی پیش آمده است لطفا دوباره تلاش کنید";
+                }
+            }
+            else
+            {
+                settingMessageGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
+                settingErrorMessage.Text = "رمز عبورها باید یکسان باشند و نمیتواند خالی باشد";
+            }
+        }
     }
 }

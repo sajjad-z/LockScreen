@@ -41,7 +41,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <materialDesign:Transitioner SelectedIndex="0" Grid.Column="1" Grid.Row="1" AutoApplyTransitionOrigins="True" HorizontalAlignment="Center" x:Name="mainBox" Margin="0 0 0 0" Width="450">
+        <materialDesign:Transitioner SelectedIndex="0" Grid.Column="1" Grid.Row="1" AutoApplyTransitionOrigins="True" HorizontalAlignment="Center" x:Name="mainBox" Width="450">
             <materialDesign:TransitioningContent OpeningEffectsOffset="{materialDesign:IndexedItemOffsetMultiplier 0:0:3:3}">
 
                 <materialDesign:TransitioningContent.OpeningEffects>
@@ -51,7 +51,7 @@
                 <materialDesign:DrawerHost VerticalAlignment="Center">
                     <materialDesign:Card Padding="32"  VerticalAlignment="Center">
                         <StackPanel KeyboardNavigation.TabNavigation="Cycle">
-                            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="10" TextAlignment="Center" Text="سلام خوش اومدی ..." />
+                            <TextBlock Name="txtTitle" Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 5" TextAlignment="Center" Text="سلام خوش اومدی ..." />
                             <PasswordBox x:Name="FloatingPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
                             <Button Name="btnLogin" IsDefault="True" TabIndex="1" Click="BtnLogin_Click" Content="ورود" 
                             Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" />
@@ -68,8 +68,33 @@
             </materialDesign:TransitioningContent>
         </materialDesign:Transitioner>
 
-        <materialDesign:Chip HorizontalContentAlignment="Right" FlowDirection="LeftToRight" HorizontalAlignment="Right"
-                             VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="0 100 50 0" Background="White"
+        <Grid Grid.Column="2" Grid.RowSpan="3" Margin="0 0 50 100" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="settingBox" Height="350" Width="350" Visibility="Collapsed">
+            <materialDesign:DrawerHost VerticalAlignment="Center">
+                <materialDesign:Card Padding="15"  VerticalAlignment="Center">
+                    <StackPanel KeyboardNavigation.TabNavigation="Cycle">
+                        <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 0" TextAlignment="Center" Text="تنظیمات" />
+                        <TextBox x:Name="titleTextBox" TabIndex="0" materialDesign:HintAssist.Hint="متن عنوان را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="10" />
+                        <PasswordBox x:Name="myPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
+                        <PasswordBox x:Name="myPasswordBoxRepeat" TabIndex="0" materialDesign:HintAssist.Hint="تکرار رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
+                        <StackPanel Orientation="Horizontal" Margin="10">
+                            <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" Name="startUpSwitch" ToolTip="Run in StartUp" />
+                            <TextBlock Text="  اجرا در استارتاپ"/>
+                        </StackPanel>
+                        <Button Name="btnSetting" IsDefault="True" TabIndex="1" Click="btnSetting_Click" Content="ذخیره" 
+                            Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" />
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <materialDesign:DrawerHost.BottomDrawerContent>
+                    <Grid Name="settingMessageGrid">
+                        <TextBlock Margin="0 20 0 20" FontSize="16" VerticalAlignment="Center" Name="settingErrorMessage" Foreground="#FAFAFA" HorizontalAlignment="Center" TextAlignment="Center" />
+                    </Grid>
+                </materialDesign:DrawerHost.BottomDrawerContent>
+            </materialDesign:DrawerHost>
+        </Grid>
+
+        <materialDesign:Chip HorizontalContentAlignment="Right" FlowDirection="LeftToRight" HorizontalAlignment="Right" Click="Chip_Click"
+                             VerticalAlignment="Bottom" VerticalContentAlignment="Center" Margin="0 0 50 60" Background="White"
                              Grid.Column="2" Grid.Row="2" Icon="sz" Content="sajjad zare" />
     </Grid>
 </Window>
