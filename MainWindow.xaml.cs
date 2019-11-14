@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Models;
+using Notifications.Wpf;
 
 namespace LockScreen
 {
@@ -74,16 +75,14 @@ namespace LockScreen
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            if (FloatingPasswordBox.Password != tSetting.Select(1).passWord)
+            if (FloatingPasswordBox.Password == tSetting.Select(1).passWord)
             {
-                ErrorGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
-                ErrorMessage.Text = "رمز عبور نامعتبر است";
+                Message("موفقیت", "در حال ورود به سیستم", NotificationType.Success);
+                System.Windows.Application.Current.Shutdown();
             }
             else
             {
-                ErrorGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80));
-                ErrorMessage.Text = "با موفقیت وارد می شوید";
-                System.Windows.Application.Current.Shutdown();
+                Message("خطا", "رمز عبور نامعتبر است", NotificationType.Error);
             }
         }
 
@@ -243,7 +242,7 @@ namespace LockScreen
 
         private void Chip_Click(object sender, RoutedEventArgs e)
         {
-          
+
         }
 
         private void Animation0_Completed(object sender, EventArgs e)
@@ -263,27 +262,47 @@ namespace LockScreen
                 if (tSetting.Update(setting))
                 {
                     InstallMeOnStartUp(setting.isStartUp);
-
-                    settingMessageGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 175, 80));
-                    settingErrorMessage.Text = "با موفقیت ذخیره شد";
+                    Message("موفقیت", "اطلاعات ذخیره شد", NotificationType.Information);
                     show_hideSettingBox();
                 }
                 else
                 {
-                    settingMessageGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
-                    settingErrorMessage.Text = "مشکلی پیش آمده است لطفا دوباره تلاش کنید";
+                    Message("خطای برنامه", "مشکلی پیش آمده است لطفا دوباره تلاش کنید", NotificationType.Information);
                 }
             }
             else
             {
-                settingMessageGrid.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(244, 67, 54));
-                settingErrorMessage.Text = "رمز عبورها باید یکسان باشند و نمیتواند خالی باشد";
+                Message("هشدار", "رمز عبورها باید یکسان باشند و نمیتواند خالی باشد", NotificationType.Warning);
             }
         }
 
         private void ButtonSetting_Click(object sender, RoutedEventArgs e)
         {
-            show_hideSettingBox();
+            if (FloatingPasswordBox.Password == tSetting.Select(1).passWord)
+            {
+                Message("موفقیت", "به تنظیمات خوش آمدید", NotificationType.Success);
+                show_hideSettingBox();
+            }
+            else
+            {
+                Message("خطا", "رمز عبور نامعتبر است", NotificationType.Error);
+            }
+        }
+
+        public void Message(string title, string message, NotificationType type)
+        {
+            try
+            {
+                WindowArea.Show(new NotificationContent
+                {
+                    Type = type,
+                    Message = message,
+                    Title = title
+                }
+                , TimeSpan.FromSeconds(3), null, null);
+                //, TimeSpan.FromSeconds(3), onClick: () => Console.WriteLine("Click"), onClose: () => Console.WriteLine("Closed!"));
+            }
+            catch { }
         }
 
     }

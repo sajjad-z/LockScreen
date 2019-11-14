@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LockScreen"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:notifications="clr-namespace:Notifications.Wpf.Controls;assembly=Notifications.Wpf"
         FontFamily="{DynamicResource MyVazir}"
         TextElement.FontSize="13" 
         TextElement.FontWeight="Regular"
@@ -45,62 +46,46 @@
             <materialDesign:TransitioningContent OpeningEffectsOffset="{materialDesign:IndexedItemOffsetMultiplier 0:0:3:3}">
 
                 <materialDesign:TransitioningContent.OpeningEffects>
-                    <materialDesign:TransitionEffect Kind="ExpandIn" />
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" />
                 </materialDesign:TransitioningContent.OpeningEffects>
 
-                <materialDesign:DrawerHost VerticalAlignment="Center">
-                    <materialDesign:Card Padding="32" Style="{StaticResource SZcardMain}" VerticalAlignment="Center" Width="400">
-                        <StackPanel KeyboardNavigation.TabNavigation="Cycle">
-                            <TextBlock Name="txtTitle" Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 5" TextAlignment="Center" Text="سلام خوش اومدی ..." />
-                            <PasswordBox x:Name="FloatingPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="auto" />
-                                </Grid.ColumnDefinitions>
-                                <Button Name="btnLogin" IsDefault="True" TabIndex="1" Click="BtnLogin_Click" Content="ورود" materialDesign:ButtonAssist.CornerRadius="20"
-                                    Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" Height="38" />
-                                <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" ToolTip="Setting" Margin="0" Click="ButtonSetting_Click" Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Settings" Height="24" Width="24" />
-                                </Button>
-                            </Grid>
-                        </StackPanel>
-                    </materialDesign:Card>
-
-                    <materialDesign:DrawerHost.BottomDrawerContent>
-                        <Grid Name="ErrorGrid">
-                            <TextBlock Margin="0 20 0 20" FontSize="16" VerticalAlignment="Center" Name="ErrorMessage" Foreground="#FAFAFA" HorizontalAlignment="Center" TextAlignment="Center" />
+                <materialDesign:Card Padding="32" Style="{StaticResource SZcardMain}" VerticalAlignment="Center" Width="400">
+                    <StackPanel KeyboardNavigation.TabNavigation="Cycle">
+                        <TextBlock Name="txtTitle" Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 5" TextAlignment="Center" Text="سلام خوش اومدی ..." />
+                        <PasswordBox x:Name="FloatingPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Name="btnLogin" IsDefault="True" TabIndex="1" Click="BtnLogin_Click" Content="ورود" materialDesign:ButtonAssist.CornerRadius="20" Margin="10" Height="38" />
+                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" ToolTip="Setting" Margin="0" Click="ButtonSetting_Click" Grid.Column="1">
+                                <materialDesign:PackIcon Kind="Settings" Height="24" Width="24" />
+                            </Button>
                         </Grid>
-                    </materialDesign:DrawerHost.BottomDrawerContent>
-                </materialDesign:DrawerHost>
+                    </StackPanel>
+                </materialDesign:Card>
 
             </materialDesign:TransitioningContent>
         </materialDesign:Transitioner>
 
         <Grid Grid.Column="2" Grid.RowSpan="3" Margin="0 0 50 100" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="settingBox" Height="350" Width="350" Visibility="Collapsed">
-            <materialDesign:DrawerHost VerticalAlignment="Center">
-                <materialDesign:Card Padding="15" Style="{StaticResource SZcardSetting}" VerticalAlignment="Center">
-                    <StackPanel KeyboardNavigation.TabNavigation="Cycle">
-                        <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 0" TextAlignment="Center" Text="تنظیمات" />
-                        <TextBox x:Name="titleTextBox" TabIndex="0" materialDesign:HintAssist.Hint="متن عنوان را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="10" />
-                        <PasswordBox x:Name="myPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
-                        <PasswordBox x:Name="myPasswordBoxRepeat" TabIndex="0" materialDesign:HintAssist.Hint="تکرار رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
-                        <StackPanel Orientation="Horizontal" Margin="10">
-                            <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" Name="startUpSwitch" ToolTip="Run in StartUp" />
-                            <TextBlock Text="  اجرا در استارتاپ"/>
-                        </StackPanel>
-                        <Button Name="btnSetting" IsDefault="True" TabIndex="1" Click="btnSetting_Click" Content="ذخیره"  materialDesign:ButtonAssist.CornerRadius="15"
-                            Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" />
+            <materialDesign:Card Padding="15" Style="{StaticResource SZcardSetting}" VerticalAlignment="Center">
+                <StackPanel KeyboardNavigation.TabNavigation="Cycle">
+                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 0" TextAlignment="Center" Text="تنظیمات" />
+                    <TextBox x:Name="titleTextBox" TabIndex="0" materialDesign:HintAssist.Hint="متن عنوان را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="10" />
+                    <PasswordBox x:Name="myPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
+                    <PasswordBox x:Name="myPasswordBoxRepeat" TabIndex="0" materialDesign:HintAssist.Hint="تکرار رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
+                    <StackPanel Orientation="Horizontal" Margin="10">
+                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" Name="startUpSwitch" ToolTip="Run in StartUp" />
+                        <TextBlock Text="  اجرا در استارتاپ"/>
                     </StackPanel>
-                </materialDesign:Card>
-
-                <materialDesign:DrawerHost.BottomDrawerContent>
-                    <Grid Name="settingMessageGrid">
-                        <TextBlock Margin="0 20 0 20" FontSize="16" VerticalAlignment="Center" Name="settingErrorMessage" Foreground="#FAFAFA" HorizontalAlignment="Center" TextAlignment="Center" />
-                    </Grid>
-                </materialDesign:DrawerHost.BottomDrawerContent>
-            </materialDesign:DrawerHost>
+                    <Button Name="btnSetting" IsDefault="True" TabIndex="1" Click="btnSetting_Click" Content="ذخیره" materialDesign:ButtonAssist.CornerRadius="15" Margin="10" />
+                </StackPanel>
+            </materialDesign:Card>
         </Grid>
+
+        <notifications:NotificationArea Panel.ZIndex="99" Margin="10" x:Name="WindowArea" Position="TopRight" Grid.Column="2" Grid.RowSpan="2" MaxItems="4" FlowDirection="RightToLeft"/>
 
         <materialDesign:Chip HorizontalContentAlignment="Right" FlowDirection="LeftToRight" HorizontalAlignment="Right" Click="Chip_Click"
                              VerticalAlignment="Bottom" VerticalContentAlignment="Center" Margin="0 0 50 60" Background="White"
