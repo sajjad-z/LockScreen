@@ -49,12 +49,21 @@
                 </materialDesign:TransitioningContent.OpeningEffects>
 
                 <materialDesign:DrawerHost VerticalAlignment="Center">
-                    <materialDesign:Card Padding="32"  VerticalAlignment="Center">
+                    <materialDesign:Card Padding="32" Style="{StaticResource SZcardMain}" VerticalAlignment="Center" Width="400">
                         <StackPanel KeyboardNavigation.TabNavigation="Cycle">
                             <TextBlock Name="txtTitle" Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 5" TextAlignment="Center" Text="سلام خوش اومدی ..." />
                             <PasswordBox x:Name="FloatingPasswordBox" TabIndex="0" materialDesign:HintAssist.Hint="رمز عبور را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Margin="10" />
-                            <Button Name="btnLogin" IsDefault="True" TabIndex="1" Click="BtnLogin_Click" Content="ورود" 
-                            Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Name="btnLogin" IsDefault="True" TabIndex="1" Click="BtnLogin_Click" Content="ورود" materialDesign:ButtonAssist.CornerRadius="20"
+                                    Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" Height="38" />
+                                <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" ToolTip="Setting" Margin="0" Click="ButtonSetting_Click" Grid.Column="1">
+                                    <materialDesign:PackIcon Kind="Settings" Height="24" Width="24" />
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </materialDesign:Card>
 
@@ -70,7 +79,7 @@
 
         <Grid Grid.Column="2" Grid.RowSpan="3" Margin="0 0 50 100" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="settingBox" Height="350" Width="350" Visibility="Collapsed">
             <materialDesign:DrawerHost VerticalAlignment="Center">
-                <materialDesign:Card Padding="15"  VerticalAlignment="Center">
+                <materialDesign:Card Padding="15" Style="{StaticResource SZcardSetting}" VerticalAlignment="Center">
                     <StackPanel KeyboardNavigation.TabNavigation="Cycle">
                         <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Margin="0 5 0 0" TextAlignment="Center" Text="تنظیمات" />
                         <TextBox x:Name="titleTextBox" TabIndex="0" materialDesign:HintAssist.Hint="متن عنوان را وارد کنید" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="10" />
@@ -80,7 +89,7 @@
                             <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" Name="startUpSwitch" ToolTip="Run in StartUp" />
                             <TextBlock Text="  اجرا در استارتاپ"/>
                         </StackPanel>
-                        <Button Name="btnSetting" IsDefault="True" TabIndex="1" Click="btnSetting_Click" Content="ذخیره" 
+                        <Button Name="btnSetting" IsDefault="True" TabIndex="1" Click="btnSetting_Click" Content="ذخیره"  materialDesign:ButtonAssist.CornerRadius="15"
                             Margin="10" Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}" CommandParameter="{x:Static Dock.Bottom}" />
                     </StackPanel>
                 </materialDesign:Card>

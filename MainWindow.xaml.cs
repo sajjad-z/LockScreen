@@ -243,7 +243,7 @@ namespace LockScreen
 
         private void Chip_Click(object sender, RoutedEventArgs e)
         {
-            show_hideSettingBox();
+          
         }
 
         private void Animation0_Completed(object sender, EventArgs e)
@@ -280,5 +280,11 @@ namespace LockScreen
                 settingErrorMessage.Text = "رمز عبورها باید یکسان باشند و نمیتواند خالی باشد";
             }
         }
+
+        private void ButtonSetting_Click(object sender, RoutedEventArgs e)
+        {
+            show_hideSettingBox();
+        }
+
     }
 }
