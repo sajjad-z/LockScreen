@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Debug.cs" />
     <Compile Include="Model\InitialDb.cs" />
     <Compile Include="Model\myContext.cs" />
     <Compile Include="Model\GenericRepository.cs" />

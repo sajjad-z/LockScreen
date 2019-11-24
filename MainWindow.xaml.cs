@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Models;
 using Notifications.Wpf;
@@ -17,46 +16,51 @@ namespace LockScreen
     /// </summary>
     public partial class MainWindow : Window
     {
-        myContext db = new myContext();
+        myContext db;
         GenericRepository<tbl_Setting> tSetting;
 
         public MainWindow()
         {
-            InitializeComponent();
-
-            // set width & height for App
-            int width = 0, height = 0;
-            foreach (var screen in Screen.AllScreens)
+            try
             {
-                width += screen.WorkingArea.Width;
-                height += screen.WorkingArea.Height;
+                InitializeComponent();
+
+                // set width & height for App
+                int width = 0, height = 0;
+                foreach (var screen in Screen.AllScreens)
+                {
+                    width += screen.WorkingArea.Width;
+                    height += screen.WorkingArea.Height;
+                }
+                this.Width = width;
+                this.Height = height;
+
+                // for responsive in multiple Monitors
+                if (Screen.AllScreens.Length > 1)
+                {
+                    Grid.SetColumn(mainBox, 2);
+                    Screen screen = Screen.AllScreens[0];
+                    int primaryWidth = screen.WorkingArea.Width;
+                    int primaryHeight = screen.WorkingArea.Height;
+                    mainBox.Margin = new Thickness(0, 0, ((primaryWidth / 2) - (mainBox.Width / 2)) - 120, 0);
+                }
+
+                db = new myContext();
+                tSetting = new GenericRepository<tbl_Setting>(db);
+                // fill Settings Values from DataBase
+                fillSettings();
+
+                // hook keyboard
+                IntPtr hModule = GetModuleHandle(IntPtr.Zero);
+                hookProc = new LowLevelKeyboardProcDelegate(LowLevelKeyboardProc);
+                hHook = SetWindowsHookEx(WH_KEYBOARD_LL, hookProc, hModule, 0);
+                DisableTaskManager();
+                //if (hHook == IntPtr.Zero)
+                //{
+                //    Console.WriteLine("Failed to set hook, error = " + Marshal.GetLastWin32Error());
+                //}
             }
-            this.Width = width;
-            this.Height = height;
-
-            // for responsive in multiple Monitors
-            if (Screen.AllScreens.Length > 1)
-            {
-                Grid.SetColumn(mainBox, 2);
-                Screen screen = Screen.AllScreens[0];
-                int primaryWidth = screen.WorkingArea.Width;
-                int primaryHeight = screen.WorkingArea.Height;
-                mainBox.Margin = new Thickness(0, 0, ((primaryWidth / 2) - (mainBox.Width / 2)) - 120, 0);
-            }
-
-            tSetting = new GenericRepository<tbl_Setting>(db);
-            // fill Settings Values from DataBase
-            fillSettings();
-
-            // hook keyboard
-            IntPtr hModule = GetModuleHandle(IntPtr.Zero);
-            hookProc = new LowLevelKeyboardProcDelegate(LowLevelKeyboardProc);
-            hHook = SetWindowsHookEx(WH_KEYBOARD_LL, hookProc, hModule, 0);
-            DisableTaskManager();
-            //if (hHook == IntPtr.Zero)
-            //{
-            //    Console.WriteLine("Failed to set hook, error = " + Marshal.GetLastWin32Error());
-            //}
+            catch (Exception ex) { Debug.Text(ex, "MainWindow()"); }
         }
 
         /// <summary>
@@ -66,11 +70,14 @@ namespace LockScreen
         {
             try
             {
+                db = new myContext();
+                tSetting = new GenericRepository<tbl_Setting>(db); // for test
+
                 tbl_Setting setting = tSetting.Select(1);
                 titleTextBox.Text = txtTitle.Text = setting.title;
                 startUpSwitch.IsChecked = setting.isStartUp;
             }
-            catch { }
+            catch (Exception ex) { Debug.Text(ex, "fillSettings()"); }
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
@@ -88,32 +95,114 @@ namespace LockScreen
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            UnhookWindowsHookEx(hHook); // release keyboard hook
-            EnableCTRLALTDEL();
+            try
+            {
+                UnhookWindowsHookEx(hHook); // release keyboard hook
+                EnableCTRLALTDEL();
+            }
+            catch (Exception ex) { Debug.Text(ex, "Window_Closed()"); }
         }
 
-        //private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.F4 ||
-        //          Keyboard.Modifiers == ModifierKeys.Control && e.SystemKey == Key.Escape ||
-        //                Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.Tab)
-        //        {
-        //            e.Handled = true;
-        //        }
+        /// <summary>
+        /// hide/show setting box 
+        /// </summary>
+        void show_hideSettingBox()
+        {
+            if (settingBox.Visibility == Visibility.Visible)
+            {
+                DoubleAnimation animation0 = new DoubleAnimation();
+                animation0.From = settingBox.ActualHeight;
+                animation0.To = 0;
+                animation0.Duration = new Duration(TimeSpan.FromMilliseconds(150));
+                animation0.Completed += Animation0_Completed;
+                settingBox.BeginAnimation(HeightProperty, animation0);
+            }
+            else
+            {
+                settingBox.Visibility = Visibility.Visible;
 
-        //        else if (Keyboard.Modifiers == ModifierKeys.Windows)
-        //        {
-        //            e.Handled = true;
-        //        }
-        //        else
-        //        {
-        //            base.OnPreviewKeyDown(e);
-        //        }
-        //    }
-        //    catch { }
-        //}
+                DoubleAnimation animation1 = new DoubleAnimation();
+                animation1.From = 0;
+                animation1.To = 350;
+                animation1.Duration = new Duration(TimeSpan.FromMilliseconds(150));
+                settingBox.BeginAnimation(HeightProperty, animation1);
+            }
+        }
+
+        private void Chip_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Animation0_Completed(object sender, EventArgs e)
+        {
+            settingBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void btnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(myPasswordBox.Password) && myPasswordBox.Password == myPasswordBoxRepeat.Password)
+                {
+                    tbl_Setting setting = tSetting.Select(1);
+                    setting.isStartUp = startUpSwitch.IsChecked == true ? true : false;
+                    setting.passWord = myPasswordBox.Password;
+                    setting.title = titleTextBox.Text;
+
+                    if (tSetting.Update(setting))
+                    {
+                        InstallMeOnStartUp(setting.isStartUp);
+                        Message("موفقیت", "اطلاعات ذخیره شد", NotificationType.Information);
+                        show_hideSettingBox();
+                    }
+                    else
+                    {
+                        Message("خطای برنامه", "مشکلی پیش آمده است لطفا دوباره تلاش کنید", NotificationType.Information);
+                    }
+                }
+                else
+                {
+                    Message("هشدار", "رمز عبورها باید یکسان باشند و نمیتواند خالی باشد", NotificationType.Warning);
+                }
+            }
+            catch (Exception ex) { Debug.Text(ex, "btnSetting_Click()"); }
+        }
+
+        private void ButtonSetting_Click(object sender, RoutedEventArgs e)
+        {
+            if (FloatingPasswordBox.Password == tSetting.Select(1).passWord)
+            {
+                Message("موفقیت", "به تنظیمات خوش آمدید", NotificationType.Success);
+                show_hideSettingBox();
+            }
+            else
+            {
+                Message("خطا", "رمز عبور نامعتبر است", NotificationType.Error);
+            }
+        }
+
+        /// <summary>
+        /// show notification message 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="message"></param>
+        /// <param name="type">blue-green-red-yellow</param>
+        public void Message(string title, string message, NotificationType type)
+        {
+            try
+            {
+                WindowArea.Show(new NotificationContent
+                {
+                    Type = type,
+                    Message = message,
+                    Title = title
+                }
+                , TimeSpan.FromSeconds(3), null, null);
+                //, TimeSpan.FromSeconds(3), onClick: () => Console.WriteLine("Click"), onClose: () => Console.WriteLine("Closed!"));
+            }
+            catch (Exception ex) { Debug.Text(ex, "Message()"); }
+        }
 
         void InstallMeOnStartUp(bool setInStartUp = true)
         {
@@ -132,7 +221,7 @@ namespace LockScreen
                         key.SetValue(curAssembly.GetName().Name, null);
                 }
             }
-            catch { }
+            catch (Exception ex) { Debug.Text(ex, "InstallMeOnStartUp()"); }
         }
 
         private void DisableTaskManager()
@@ -146,10 +235,7 @@ namespace LockScreen
                 regkey.SetValue("DisableTaskMgr", keyValueInt);
                 regkey.Close();
             }
-            catch (Exception ex)
-            {
-                //System.Windows.MessageBox.Show("Error " + ex.Message);
-            }
+            catch (Exception ex) { Debug.Text(ex, "DisableTaskManager()"); }
         }
 
         public static void EnableCTRLALTDEL()
@@ -162,10 +248,12 @@ namespace LockScreen
                 if (sk1 != null)
                     rk.DeleteSubKeyTree(subKey);
             }
-            catch { }
+            catch (Exception ex) { Debug.Text(ex, "EnableCTRLALTDEL()"); }
         }
 
         // Disable Real All Key out of Program (Except ctrl+alt+delete)
+        #region disable keys
+
         private struct KBDLLHOOKSTRUCT
         {
             public int vkCode;
@@ -217,93 +305,30 @@ namespace LockScreen
             return CallNextHookEx(0, nCode, wParam, ref lParam);
         }
 
-        void show_hideSettingBox()
-        {
-            if (settingBox.Visibility == Visibility.Visible)
-            {
-                DoubleAnimation animation0 = new DoubleAnimation();
-                animation0.From = settingBox.ActualHeight;
-                animation0.To = 0;
-                animation0.Duration = new Duration(TimeSpan.FromMilliseconds(150));
-                animation0.Completed += Animation0_Completed;
-                settingBox.BeginAnimation(HeightProperty, animation0);
-            }
-            else
-            {
-                settingBox.Visibility = Visibility.Visible;
+        #endregion
 
-                DoubleAnimation animation1 = new DoubleAnimation();
-                animation1.From = 0;
-                animation1.To = 350;
-                animation1.Duration = new Duration(TimeSpan.FromMilliseconds(150));
-                settingBox.BeginAnimation(HeightProperty, animation1);
-            }
-        }
+        //private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.F4 ||
+        //          Keyboard.Modifiers == ModifierKeys.Control && e.SystemKey == Key.Escape ||
+        //                Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.Tab)
+        //        {
+        //            e.Handled = true;
+        //        }
 
-        private void Chip_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Animation0_Completed(object sender, EventArgs e)
-        {
-            settingBox.Visibility = Visibility.Collapsed;
-        }
-
-        private void btnSetting_Click(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(myPasswordBox.Password) && myPasswordBox.Password == myPasswordBoxRepeat.Password)
-            {
-                tbl_Setting setting = tSetting.Select(1);
-                setting.isStartUp = startUpSwitch.IsChecked == true ? true : false;
-                setting.passWord = myPasswordBox.Password;
-                setting.title = titleTextBox.Text;
-
-                if (tSetting.Update(setting))
-                {
-                    InstallMeOnStartUp(setting.isStartUp);
-                    Message("موفقیت", "اطلاعات ذخیره شد", NotificationType.Information);
-                    show_hideSettingBox();
-                }
-                else
-                {
-                    Message("خطای برنامه", "مشکلی پیش آمده است لطفا دوباره تلاش کنید", NotificationType.Information);
-                }
-            }
-            else
-            {
-                Message("هشدار", "رمز عبورها باید یکسان باشند و نمیتواند خالی باشد", NotificationType.Warning);
-            }
-        }
-
-        private void ButtonSetting_Click(object sender, RoutedEventArgs e)
-        {
-            if (FloatingPasswordBox.Password == tSetting.Select(1).passWord)
-            {
-                Message("موفقیت", "به تنظیمات خوش آمدید", NotificationType.Success);
-                show_hideSettingBox();
-            }
-            else
-            {
-                Message("خطا", "رمز عبور نامعتبر است", NotificationType.Error);
-            }
-        }
-
-        public void Message(string title, string message, NotificationType type)
-        {
-            try
-            {
-                WindowArea.Show(new NotificationContent
-                {
-                    Type = type,
-                    Message = message,
-                    Title = title
-                }
-                , TimeSpan.FromSeconds(3), null, null);
-                //, TimeSpan.FromSeconds(3), onClick: () => Console.WriteLine("Click"), onClose: () => Console.WriteLine("Closed!"));
-            }
-            catch { }
-        }
+        //        else if (Keyboard.Modifiers == ModifierKeys.Windows)
+        //        {
+        //            e.Handled = true;
+        //        }
+        //        else
+        //        {
+        //            base.OnPreviewKeyDown(e);
+        //        }
+        //    }
+        //    catch { }
+        //}
 
     }
 }
