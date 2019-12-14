@@ -11,13 +11,10 @@ using Notifications.Wpf;
 
 namespace LockScreen
 {
-    /// <summary>
-    /// logic for MainWindow.xaml
-    /// </summary>
+    // logic for MainWindow.xaml
     public partial class MainWindow : Window
     {
-        myContext db;
-        GenericRepository<tbl_Setting> tSetting;
+        DataBase<tbl_Setting> liteDb;
 
         public MainWindow()
         {
@@ -45,8 +42,8 @@ namespace LockScreen
                     mainBox.Margin = new Thickness(0, 0, ((primaryWidth / 2) - (mainBox.Width / 2)) - 120, 0);
                 }
 
-                db = new myContext();
-                tSetting = new GenericRepository<tbl_Setting>(db);
+                liteDb = new Models.DataBase<tbl_Setting>();
+
                 // fill Settings Values from DataBase
                 fillSettings();
 
@@ -63,17 +60,12 @@ namespace LockScreen
             catch (Exception ex) { Debug.Text(ex, "MainWindow()"); }
         }
 
-        /// <summary>
-        /// fill Settings Values from DataBase
-        /// </summary>
+        // fill Settings Values from DataBase
         private void fillSettings()
         {
             try
             {
-                db = new myContext();
-                tSetting = new GenericRepository<tbl_Setting>(db); // for test
-
-                tbl_Setting setting = tSetting.Select(1);
+                tbl_Setting setting = liteDb.Select(1);
                 titleTextBox.Text = txtTitle.Text = setting.title;
                 startUpSwitch.IsChecked = setting.isStartUp;
             }
@@ -82,7 +74,7 @@ namespace LockScreen
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            if (FloatingPasswordBox.Password == tSetting.Select(1).passWord)
+            if (FloatingPasswordBox.Password == liteDb.Select(1).passWord)
             {
                 Message("موفقیت", "در حال ورود به سیستم", NotificationType.Success);
                 System.Windows.Application.Current.Shutdown();
@@ -103,9 +95,7 @@ namespace LockScreen
             catch (Exception ex) { Debug.Text(ex, "Window_Closed()"); }
         }
 
-        /// <summary>
-        /// hide/show setting box 
-        /// </summary>
+        // hide/show setting box 
         void show_hideSettingBox()
         {
             if (settingBox.Visibility == Visibility.Visible)
@@ -145,12 +135,12 @@ namespace LockScreen
             {
                 if (!string.IsNullOrEmpty(myPasswordBox.Password) && myPasswordBox.Password == myPasswordBoxRepeat.Password)
                 {
-                    tbl_Setting setting = tSetting.Select(1);
+                    tbl_Setting setting = liteDb.Select(1);
                     setting.isStartUp = startUpSwitch.IsChecked == true ? true : false;
                     setting.passWord = myPasswordBox.Password;
                     setting.title = titleTextBox.Text;
 
-                    if (tSetting.Update(setting))
+                    if (liteDb.Update(setting))
                     {
                         InstallMeOnStartUp(setting.isStartUp);
                         Message("موفقیت", "اطلاعات ذخیره شد", NotificationType.Information);
@@ -171,7 +161,7 @@ namespace LockScreen
 
         private void ButtonSetting_Click(object sender, RoutedEventArgs e)
         {
-            if (FloatingPasswordBox.Password == tSetting.Select(1).passWord)
+            if (FloatingPasswordBox.Password == liteDb.Select(1).passWord)
             {
                 Message("موفقیت", "به تنظیمات خوش آمدید", NotificationType.Success);
                 show_hideSettingBox();
@@ -182,12 +172,8 @@ namespace LockScreen
             }
         }
 
-        /// <summary>
-        /// show notification message 
-        /// </summary>
-        /// <param name="title"></param>
-        /// <param name="message"></param>
-        /// <param name="type">blue-green-red-yellow</param>
+        // show notification message 
+        // <param name="type">blue-green-red-yellow</param>
         public void Message(string title, string message, NotificationType type)
         {
             try
@@ -306,29 +292,6 @@ namespace LockScreen
         }
 
         #endregion
-
-        //private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.F4 ||
-        //          Keyboard.Modifiers == ModifierKeys.Control && e.SystemKey == Key.Escape ||
-        //                Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.Tab)
-        //        {
-        //            e.Handled = true;
-        //        }
-
-        //        else if (Keyboard.Modifiers == ModifierKeys.Windows)
-        //        {
-        //            e.Handled = true;
-        //        }
-        //        else
-        //        {
-        //            base.OnPreviewKeyDown(e);
-        //        }
-        //    }
-        //    catch { }
-        //}
 
     }
 }

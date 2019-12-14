@@ -59,9 +59,10 @@
                                 <ColumnDefinition Width="auto" />
                             </Grid.ColumnDefinitions>
                             <Button Name="btnLogin" IsDefault="True" TabIndex="1" Click="BtnLogin_Click" Content="ورود" materialDesign:ButtonAssist.CornerRadius="20" Margin="10" Height="38" />
-                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" ToolTip="Setting" Margin="0" Click="ButtonSetting_Click" Grid.Column="1">
+                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" ToolTip="Setting" Margin="0 0 10 0" Click="ButtonSetting_Click" Grid.Column="1">
                                 <materialDesign:PackIcon Kind="Settings" Height="24" Width="24" />
                             </Button>
+                            
                         </Grid>
                     </StackPanel>
                 </materialDesign:Card>

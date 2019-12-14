@@ -1,14 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-/// <summary>
-/// Created By Sz => sz
-/// </summary>
-
+﻿
 namespace Models
 {
     public class tbl_Setting
     {
-        [Key]
         public int id { get; set; }
 
         public string userName { get; set; }
